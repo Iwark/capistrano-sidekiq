@@ -44,7 +44,7 @@ namespace :sidekiq do
       switch_user(role) do
         case fetch(:init_system)
         when :systemd
-          execute :systemctl, "--user", "reload", fetch(:service_unit_name), raise_on_non_zero_exit: false
+          sudo :systemctl, "reload", fetch(:service_unit_name), raise_on_non_zero_exit: false
         when :upstart
           sudo :service, fetch(:upstart_service_name), :reload
         else
@@ -66,7 +66,7 @@ namespace :sidekiq do
       switch_user(role) do
         case fetch(:init_system)
         when :systemd
-          execute :systemctl, "--user", "stop", fetch(:service_unit_name)
+          sudo :systemctl, "stop", fetch(:service_unit_name)
         when :upstart
           sudo :service, fetch(:upstart_service_name), :stop
         else
@@ -88,7 +88,7 @@ namespace :sidekiq do
       switch_user(role) do
         case fetch(:init_system)
         when :systemd
-          execute :systemctl, '--user', 'start', fetch(:service_unit_name)
+          sudo :systemctl, 'start', fetch(:service_unit_name)
         when :upstart
           sudo :service, fetch(:upstart_service_name), :start
         else
@@ -155,7 +155,7 @@ namespace :sidekiq do
         case fetch(:init_system)
         when :systemd
           create_systemd_template
-          execute :systemctl, "--user", "enable", fetch(:service_unit_name)
+          sudo :systemctl, "enable", fetch(:service_unit_name)
         end
       end
     end
@@ -166,7 +166,7 @@ namespace :sidekiq do
       switch_user(role) do
         case fetch(:init_system)
         when :systemd
-          execute :systemctl, "--user", "disable", fetch(:service_unit_name)
+          sudo :systemctl, "disable", fetch(:service_unit_name)
           execute :rm, File.join(fetch(:service_unit_path, fetch_systemd_unit_path),fetch(:service_unit_name))
         end
       end
@@ -203,7 +203,7 @@ namespace :sidekiq do
       StringIO.new(ERB.new(template).result(binding)),
       "#{systemd_path}/#{fetch :service_unit_name}"
     )
-    execute :systemctl, "--user", "daemon-reload"
+    sudo :systemctl, "daemon-reload"
   end
 
   def pid_files
